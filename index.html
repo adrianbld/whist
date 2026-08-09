@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#173b33">
+  <title>Whist — Tabela de scor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">♠</span>
+        <div>
+          <p class="eyebrow">Joc de cărți</p>
+          <h1>Whist</h1>
+        </div>
+      </div>
+      <button id="resetButton" class="button button-ghost hidden" type="button">Joc nou</button>
+    </header>
+
+    <section id="setupScreen" class="card setup-card">
+      <div class="setup-copy">
+        <p class="eyebrow">Începe o partidă</p>
+        <h2>Cine joacă astăzi?</h2>
+        <p>Adaugă între 4 și 6 jucători. Programul rundelor se generează automat, iar scorul se salvează pe acest dispozitiv.</p>
+      </div>
+
+      <form id="setupForm">
+        <div id="playerInputs" class="player-inputs"></div>
+        <div class="setup-actions">
+          <button id="addPlayerButton" class="button button-secondary" type="button">+ Adaugă jucător</button>
+          <button class="button button-primary" type="submit">Începe jocul</button>
+        </div>
+        <p id="setupError" class="error" role="alert"></p>
+      </form>
+    </section>
+
+    <section id="gameScreen" class="hidden">
+      <div class="game-heading">
+        <div>
+          <p class="eyebrow">Partidă în desfășurare</p>
+          <h2 id="roundTitle">Runda 1</h2>
+          <p id="roundSchedule" class="round-schedule"></p>
+          <p id="firstBidder" class="first-bidder"></p>
+        </div>
+        <div class="round-badge"><span id="cardsCount">1</span> cărți</div>
+      </div>
+
+      <section class="card round-card">
+        <div class="round-instructions">
+          <div>
+            <h3>Rezultatul rundei</h3>
+            <p>Introdu licitația și levatele obținute de fiecare jucător.</p>
+          </div>
+          <p id="tricksProgress" class="tricks-progress">Levate: 0 / 1</p>
+        </div>
+        <form id="roundForm">
+          <div class="round-grid round-grid-header" aria-hidden="true">
+            <span>Jucător</span><span>Licitație</span><span>Obținute</span>
+          </div>
+          <div id="roundInputs"></div>
+          <p id="bidHint" class="bid-hint"></p>
+          <p id="roundError" class="error" role="alert"></p>
+          <button id="saveRoundButton" class="button button-primary save-round" type="submit">Salvează runda</button>
+        </form>
+      </section>
+
+      <section class="score-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Scor general</p>
+            <h2>Clasament</h2>
+          </div>
+          <span id="savedStatus" class="saved-status">Salvat automat</span>
+        </div>
+        <div id="leaderboard" class="leaderboard"></div>
+
+        <div class="card history-card">
+          <div class="history-heading">
+            <h3>Istoric runde</h3>
+            <button id="undoButton" class="text-button hidden" type="button">Anulează ultima rundă</button>
+          </div>
+          <div class="table-wrap">
+            <table id="scoreTable">
+              <thead id="scoreHead"></thead>
+              <tbody id="scoreBody"></tbody>
+            </table>
+          </div>
+          <p id="emptyHistory" class="empty-history">Prima rundă așteaptă să fie jucată.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="resetDialog">
+    <form method="dialog" class="dialog-card">
+      <span class="dialog-icon">♣</span>
+      <h2>Începem un joc nou?</h2>
+      <p>Partida și toate scorurile actuale vor fi șterse.</p>
+      <div class="dialog-actions">
+        <button class="button button-secondary" value="cancel">Renunță</button>
+        <button id="confirmReset" class="button button-danger" value="confirm">Șterge partida</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
