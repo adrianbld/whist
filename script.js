@@ -150,13 +150,15 @@ function currentOutcomeStreak(playerId, wasSuccessful) {
 }
 
 function streakIndicators(playerId, cards) {
+  if (cards === 1) return "";
   const target = state.players.length + 1;
-  const wins = cards === 1 ? 0 : currentOutcomeStreak(playerId, true);
-  const losses = cards === 1 ? 0 : currentOutcomeStreak(playerId, false);
-  return `
-    <span class="streak streak-win">Premiere ${wins}/${target}</span>
-    <span class="streak streak-loss">Penalizare ${losses}/${target}</span>
-  `;
+  const wins = currentOutcomeStreak(playerId, true);
+  if (wins > 0) return `<span class="streak streak-win">Premiere ${wins}/${target}</span>`;
+
+  const losses = currentOutcomeStreak(playerId, false);
+  if (losses > 0) return `<span class="streak streak-loss">Penalizare ${losses}/${target}</span>`;
+
+  return "";
 }
 
 function totals() {

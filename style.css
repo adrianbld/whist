@@ -77,6 +77,7 @@ select:disabled { color: var(--muted); background: var(--cream); cursor: not-all
 .player-info { min-width: 0; }
 .player-info strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .streaks { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.streaks:empty { display: none; }
 .streak { padding: 3px 6px; border-radius: 6px; font-size: 9px; font-weight: 700; white-space: nowrap; }
 .streak-win { color: var(--green-light); background: rgba(38,92,79,.09); }
 .streak-loss { color: var(--red); background: rgba(164,66,58,.08); }
