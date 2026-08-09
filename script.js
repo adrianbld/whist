@@ -39,7 +39,14 @@ const elements = {
   playerStatisticsBody: document.querySelector("#playerStatisticsBody"),
   completedGames: document.querySelector("#completedGames"),
   emptyStatistics: document.querySelector("#emptyStatistics"),
-  clearHistoryButton: document.querySelector("#clearHistoryButton")
+  clearHistoryButton: document.querySelector("#clearHistoryButton"),
+  finishDialog: document.querySelector("#finishDialog"),
+  finishTitle: document.querySelector("#finishTitle"),
+  finishSubtitle: document.querySelector("#finishSubtitle"),
+  finalRanking: document.querySelector("#finalRanking"),
+  finishNewGame: document.querySelector("#finishNewGame"),
+  finishStatistics: document.querySelector("#finishStatistics"),
+  finishClose: document.querySelector("#finishClose")
 };
 
 function addPlayerInput(value = "") {
@@ -142,6 +149,16 @@ function currentOutcomeStreak(playerId, wasSuccessful) {
   return streak;
 }
 
+function streakIndicators(playerId, cards) {
+  const target = state.players.length + 1;
+  const wins = cards === 1 ? 0 : currentOutcomeStreak(playerId, true);
+  const losses = cards === 1 ? 0 : currentOutcomeStreak(playerId, false);
+  return `
+    <span class="streak streak-win">Premiere ${wins}/${target}</span>
+    <span class="streak streak-loss">Penalizare ${losses}/${target}</span>
+  `;
+}
+
 function totals() {
   return state.players.map((player) => ({
     ...player,
@@ -238,6 +255,26 @@ function formatDate(date) {
   return new Intl.DateTimeFormat("ro-RO", { dateStyle: "medium", timeStyle: "short" }).format(new Date(date));
 }
 
+function showFinalScreen() {
+  const ranked = totals().sort((a, b) => b.score - a.score);
+  const bestScore = ranked[0].score;
+  const winners = ranked.filter((player) => player.score === bestScore);
+  elements.finishTitle.textContent = winners.length === 1
+    ? `${winners[0].name} câștigă!`
+    : "Avem egalitate!";
+  elements.finishSubtitle.textContent = winners.length === 1
+    ? `Felicitări pentru victoria cu ${bestScore} puncte.`
+    : `${winners.map((player) => player.name).join(" și ")} împart primul loc.`;
+  elements.finalRanking.innerHTML = ranked.map((player, index) => `
+    <div class="final-player">
+      <span class="final-rank">${index + 1}</span>
+      <strong>${escapeHtml(player.name)}</strong>
+      <span class="final-score">${formatScore(player.score)}</span>
+    </div>
+  `).join("");
+  elements.finishDialog.showModal();
+}
+
 function renderGame() {
   const hasGame = state.players.length >= 4;
   elements.setupScreen.classList.toggle("hidden", hasGame);
@@ -262,7 +299,10 @@ function renderGame() {
 
   elements.roundInputs.innerHTML = roundPlayers.map((player, orderIndex) => `
     <div class="round-grid round-player" data-player-id="${escapeHtml(player.id)}">
-      <strong title="${escapeHtml(player.name)}">${escapeHtml(player.name)}</strong>
+      <div class="player-info">
+        <strong title="${escapeHtml(player.name)}">${escapeHtml(player.name)}</strong>
+        <div class="streaks">${streakIndicators(player.id, cards)}</div>
+      </div>
       <select class="bid-input" aria-label="Licitația lui ${escapeHtml(player.name)}">
         ${bidOptions(cards)}
       </select>
@@ -432,6 +472,7 @@ function saveRound(event) {
   saveState();
   renderGame();
   renderStatistics();
+  if (state.rounds.length === schedule.length) showFinalScreen();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -503,6 +544,24 @@ elements.confirmReset.addEventListener("click", () => {
   elements.playerInputs.innerHTML = "";
   ["", "", "", ""].forEach(addPlayerInput);
   renderGame();
+});
+
+elements.finishClose.addEventListener("click", () => elements.finishDialog.close());
+elements.finishStatistics.addEventListener("click", () => {
+  elements.finishDialog.close();
+  document.querySelector("#statisticsSection").scrollIntoView({ behavior: "smooth" });
+});
+elements.finishNewGame.addEventListener("click", () => {
+  elements.finishDialog.close();
+  localStorage.removeItem(STORAGE_KEY);
+  state.players = [];
+  state.rounds = [];
+  state.gameId = null;
+  state.startedAt = null;
+  elements.playerInputs.innerHTML = "";
+  ["", "", "", ""].forEach(addPlayerInput);
+  renderGame();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
 elements.clearHistoryButton.addEventListener("click", () => {
