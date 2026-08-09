@@ -340,6 +340,14 @@ function updateTrickOptions() {
   trickInputs.forEach((select, index) => {
     const previousValue = select.value;
     const isLast = index === trickInputs.length - 1;
+
+    if (previousCompleted && remaining === 0) {
+      select.disabled = true;
+      select.innerHTML = valueOptions([0]);
+      select.value = "0";
+      return;
+    }
+
     const allowedValues = isLast
       ? [remaining]
       : Array.from({ length: remaining + 1 }, (_, value) => value);
