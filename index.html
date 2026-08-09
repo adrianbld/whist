@@ -92,6 +92,29 @@
         </div>
       </section>
     </section>
+
+    <section id="statisticsSection" class="statistics-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Istoric personal</p>
+          <h2>Statistici</h2>
+        </div>
+        <button id="clearHistoryButton" class="text-button hidden" type="button">Șterge istoricul</button>
+      </div>
+      <div id="statisticsSummary" class="statistics-summary"></div>
+      <div id="playerStatistics" class="card stats-card hidden">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Jucător</th><th>Partide</th><th>Victorii</th><th>Scor total</th><th>Medie</th></tr>
+            </thead>
+            <tbody id="playerStatisticsBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="completedGames" class="completed-games"></div>
+      <div id="emptyStatistics" class="card empty-history">Statisticile vor apărea după terminarea primei partide.</div>
+    </section>
   </main>
 
   <dialog id="resetDialog">

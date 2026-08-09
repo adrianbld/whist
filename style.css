@@ -105,6 +105,18 @@ td { font-weight: 600; }
 .streak-penalty { display: block; margin-top: 3px; color: var(--red); font-size: 11px; font-weight: 700; }
 .empty-history { margin: 15px 0 0; padding: 24px; color: var(--muted); background: var(--cream); border-radius: 12px; text-align: center; }
 
+.statistics-section { margin-top: 52px; }
+.statistics-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+.summary-card { padding: 19px 21px; background: var(--green); border-radius: 17px; color: #fff; }
+.summary-card span { display: block; color: rgba(255,255,255,.6); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.summary-card strong { display: block; margin-top: 7px; color: var(--gold); font-family: "Playfair Display", serif; font-size: 27px; }
+.stats-card { padding: 13px 20px; }
+.completed-games { display: grid; gap: 10px; margin-top: 18px; }
+.completed-game { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 20px; background: rgba(255,252,245,.72); border: 1px solid var(--line); border-radius: 15px; }
+.completed-game p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+.completed-game-result { flex: 1; color: var(--muted); font-size: 13px; text-align: right; }
+.completed-game-result strong { color: var(--green); }
+
 dialog { max-width: 430px; padding: 0; border: 0; border-radius: 22px; box-shadow: 0 30px 80px rgba(0,0,0,.25); }
 dialog::backdrop { background: rgba(15,27,23,.56); backdrop-filter: blur(3px); }
 .dialog-card { padding: 34px; text-align: center; }
@@ -123,6 +135,7 @@ dialog::backdrop { background: rgba(15,27,23,.56); backdrop-filter: blur(3px); }
   .round-instructions { align-items: flex-start; flex-direction: column; }
   .save-round { width: 100%; }
   .leaderboard { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .statistics-summary { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
@@ -173,6 +186,13 @@ dialog::backdrop { background: rgba(15,27,23,.56); backdrop-filter: blur(3px); }
   th, td { min-width: 92px; padding: 12px 8px; }
   th:first-child, td:first-child { position: sticky; left: 0; z-index: 1; min-width: 68px; background: var(--paper); }
   .empty-history { padding: 20px 12px; }
+  .statistics-section { margin-top: 38px; }
+  .statistics-summary { gap: 8px; }
+  .summary-card { padding: 15px 17px; }
+  .summary-card strong { font-size: 23px; }
+  .stats-card { padding: 8px; }
+  .completed-game { align-items: flex-start; flex-direction: column; gap: 8px; padding: 16px; }
+  .completed-game-result { text-align: left; }
 
   dialog { width: calc(100% - 28px); }
   .dialog-card { padding: 28px 20px 22px; }

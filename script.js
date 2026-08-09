@@ -1,9 +1,14 @@
 const STORAGE_KEY = "whist-game-v1";
+const HISTORY_KEY = "whist-history-v1";
 
 const state = {
+  gameId: null,
+  startedAt: null,
   players: [],
   rounds: []
 };
+
+let gameHistory = [];
 
 const elements = {
   setupScreen: document.querySelector("#setupScreen"),
@@ -28,7 +33,13 @@ const elements = {
   emptyHistory: document.querySelector("#emptyHistory"),
   undoButton: document.querySelector("#undoButton"),
   resetDialog: document.querySelector("#resetDialog"),
-  confirmReset: document.querySelector("#confirmReset")
+  confirmReset: document.querySelector("#confirmReset"),
+  statisticsSummary: document.querySelector("#statisticsSummary"),
+  playerStatistics: document.querySelector("#playerStatistics"),
+  playerStatisticsBody: document.querySelector("#playerStatisticsBody"),
+  completedGames: document.querySelector("#completedGames"),
+  emptyStatistics: document.querySelector("#emptyStatistics"),
+  clearHistoryButton: document.querySelector("#clearHistoryButton")
 };
 
 function addPlayerInput(value = "") {
@@ -62,6 +73,8 @@ function refreshPlayerPlaceholders() {
 }
 
 function startGame(names) {
+  state.gameId = crypto.randomUUID?.() || String(Date.now());
+  state.startedAt = new Date().toISOString();
   state.players = names.map((name, index) => ({ id: crypto.randomUUID?.() || `${Date.now()}-${index}`, name }));
   state.rounds = [];
   saveState();
@@ -137,6 +150,92 @@ function totals() {
       return sum + (result?.score || 0);
     }, 0)
   }));
+}
+
+function archiveCompletedGame() {
+  const schedule = buildSchedule(state.players.length);
+  if (state.rounds.length !== schedule.length) return;
+
+  const finalTotals = totals().map(({ id, name, score }) => ({ id, name, score }));
+  const bestScore = Math.max(...finalTotals.map((player) => player.score));
+  const archivedGame = {
+    id: state.gameId,
+    startedAt: state.startedAt,
+    completedAt: new Date().toISOString(),
+    rounds: state.rounds.length,
+    players: finalTotals.map((player) => ({ ...player, winner: player.score === bestScore }))
+  };
+  const existingIndex = gameHistory.findIndex((game) => game.id === state.gameId);
+  if (existingIndex >= 0) return;
+  gameHistory.unshift(archivedGame);
+  saveHistory();
+}
+
+function saveHistory() {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(gameHistory));
+}
+
+function loadHistory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(HISTORY_KEY));
+    gameHistory = Array.isArray(saved) ? saved : [];
+  } catch {
+    gameHistory = [];
+    localStorage.removeItem(HISTORY_KEY);
+  }
+}
+
+function renderStatistics() {
+  const hasHistory = gameHistory.length > 0;
+  elements.emptyStatistics.classList.toggle("hidden", hasHistory);
+  elements.playerStatistics.classList.toggle("hidden", !hasHistory);
+  elements.clearHistoryButton.classList.toggle("hidden", !hasHistory);
+  if (!hasHistory) {
+    elements.statisticsSummary.innerHTML = "";
+    elements.completedGames.innerHTML = "";
+    return;
+  }
+
+  const playerMap = new Map();
+  gameHistory.forEach((game) => game.players.forEach((player) => {
+    const key = player.name.trim().toLocaleLowerCase("ro");
+    const stats = playerMap.get(key) || { name: player.name, games: 0, wins: 0, total: 0 };
+    stats.games += 1;
+    stats.wins += player.winner ? 1 : 0;
+    stats.total += player.score;
+    playerMap.set(key, stats);
+  }));
+  const playerStats = [...playerMap.values()].sort((a, b) => b.wins - a.wins || b.total - a.total);
+  const topPlayer = playerStats[0];
+  const roundsPlayed = gameHistory.reduce((sum, game) => sum + game.rounds, 0);
+
+  elements.statisticsSummary.innerHTML = `
+    <article class="summary-card"><span>Partide terminate</span><strong>${gameHistory.length}</strong></article>
+    <article class="summary-card"><span>Runde înregistrate</span><strong>${roundsPlayed}</strong></article>
+    <article class="summary-card"><span>Cele mai multe victorii</span><strong>${escapeHtml(topPlayer.name)} · ${topPlayer.wins}</strong></article>
+  `;
+  elements.playerStatisticsBody.innerHTML = playerStats.map((player) => `
+    <tr>
+      <td>${escapeHtml(player.name)}</td><td>${player.games}</td><td>${player.wins}</td>
+      <td class="${player.total >= 0 ? "score-positive" : "score-negative"}">${formatScore(player.total)}</td>
+      <td>${(player.total / player.games).toFixed(1)}</td>
+    </tr>
+  `).join("");
+  elements.completedGames.innerHTML = gameHistory.map((game) => {
+    const winners = game.players.filter((player) => player.winner).map((player) => player.name).join(", ");
+    const scores = [...game.players].sort((a, b) => b.score - a.score)
+      .map((player) => `${escapeHtml(player.name)} ${formatScore(player.score)}`).join(" · ");
+    return `
+      <article class="completed-game">
+        <div><strong>${formatDate(game.completedAt)}</strong><p>${game.players.length} jucători · ${game.rounds} runde</p></div>
+        <div class="completed-game-result"><strong>🏆 ${escapeHtml(winners)}</strong><br>${scores}</div>
+      </article>
+    `;
+  }).join("");
+}
+
+function formatDate(date) {
+  return new Intl.DateTimeFormat("ro-RO", { dateStyle: "medium", timeStyle: "short" }).format(new Date(date));
 }
 
 function renderGame() {
@@ -329,8 +428,10 @@ function saveRound(event) {
       };
     })
   });
+  archiveCompletedGame();
   saveState();
   renderGame();
+  renderStatistics();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -342,6 +443,8 @@ function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (saved?.players?.length >= 4 && Array.isArray(saved.rounds)) {
+      state.gameId = saved.gameId || crypto.randomUUID?.() || String(Date.now());
+      state.startedAt = saved.startedAt || new Date().toISOString();
       state.players = saved.players;
       state.rounds = saved.rounds;
     }
@@ -381,19 +484,37 @@ elements.setupForm.addEventListener("submit", (event) => {
 elements.roundForm.addEventListener("submit", saveRound);
 elements.undoButton.addEventListener("click", () => {
   state.rounds.pop();
+  const archivedIndex = gameHistory.findIndex((game) => game.id === state.gameId);
+  if (archivedIndex >= 0) {
+    gameHistory.splice(archivedIndex, 1);
+    saveHistory();
+  }
   saveState();
   renderGame();
+  renderStatistics();
 });
 elements.resetButton.addEventListener("click", () => elements.resetDialog.showModal());
 elements.confirmReset.addEventListener("click", () => {
   localStorage.removeItem(STORAGE_KEY);
   state.players = [];
   state.rounds = [];
+  state.gameId = null;
+  state.startedAt = null;
   elements.playerInputs.innerHTML = "";
   ["", "", "", ""].forEach(addPlayerInput);
   renderGame();
 });
 
+elements.clearHistoryButton.addEventListener("click", () => {
+  if (!window.confirm("Ștergi toate statisticile și partidele finalizate de pe acest dispozitiv?")) return;
+  gameHistory = [];
+  localStorage.removeItem(HISTORY_KEY);
+  renderStatistics();
+});
+
+loadHistory();
 loadState();
-  if (!state.players.length) ["", "", "", ""].forEach(addPlayerInput);
+archiveCompletedGame();
+if (!state.players.length) ["", "", "", ""].forEach(addPlayerInput);
 renderGame();
+renderStatistics();
