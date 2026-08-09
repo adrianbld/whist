@@ -334,34 +334,28 @@ function updateTrickOptions() {
   if (!trickInputs.length) return;
 
   const cards = buildSchedule(state.players.length)[state.rounds.length] ?? 1;
-  let remaining = cards;
-  let previousCompleted = true;
+  let values = trickInputs.map((select) => select.value === "" ? null : Number(select.value));
+  let total = values.reduce((sum, value) => sum + (value ?? 0), 0);
 
+  if (total === cards) {
+    trickInputs.forEach((select, index) => {
+      if (values[index] === null) {
+        select.value = "0";
+        values[index] = 0;
+      }
+    });
+    total = cards;
+  }
+
+  const remaining = Math.max(0, cards - total);
   trickInputs.forEach((select, index) => {
-    const previousValue = select.value;
-    const isLast = index === trickInputs.length - 1;
+    const currentValue = values[index];
+    const maximum = Math.min(cards, (currentValue ?? 0) + remaining);
+    const allowedValues = Array.from({ length: maximum + 1 }, (_, value) => value);
 
-    if (previousCompleted && remaining === 0) {
-      select.disabled = true;
-      select.innerHTML = valueOptions([0]);
-      select.value = "0";
-      return;
-    }
-
-    const allowedValues = isLast
-      ? [remaining]
-      : Array.from({ length: remaining + 1 }, (_, value) => value);
-
-    select.disabled = !previousCompleted;
+    select.disabled = false;
     select.innerHTML = valueOptions(allowedValues);
-
-    if (previousCompleted && allowedValues.includes(Number(previousValue)) && previousValue !== "") {
-      select.value = previousValue;
-      remaining -= Number(previousValue);
-    } else {
-      select.value = "";
-      previousCompleted = false;
-    }
+    if (currentValue !== null) select.value = String(currentValue);
   });
 }
 
