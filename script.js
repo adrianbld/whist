@@ -25,7 +25,6 @@ const elements = {
   roundTitle: document.querySelector("#roundTitle"),
   roundSchedule: document.querySelector("#roundSchedule"),
   firstBidder: document.querySelector("#firstBidder"),
-  cardsCount: document.querySelector("#cardsCount"),
   tricksProgress: document.querySelector("#tricksProgress"),
   leaderboard: document.querySelector("#leaderboard"),
   scoreHead: document.querySelector("#scoreHead"),
@@ -298,7 +297,6 @@ function renderGame() {
   elements.roundSchedule.textContent = isFinished
     ? `Partidă încheiată · ${schedule.length} runde jucate`
     : `Runda ${roundNumber} din ${schedule.length}`;
-  elements.cardsCount.textContent = cards;
   elements.firstBidder.textContent = isFinished ? "" : `Licitează primul: ${roundPlayers[0].name}`;
   elements.firstBidder.classList.toggle("hidden", isFinished);
   elements.openLeaderboard.classList.toggle("hidden", isFinished);
