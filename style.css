@@ -66,10 +66,10 @@ select:disabled { color: var(--muted); background: var(--cream); cursor: not-all
 .game-heading > div:first-child { flex: 1; min-width: 0; }
 .game-heading h2, .section-heading h2 { margin-bottom: 0; }
 .round-schedule { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
-.round-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 9px; }
+.round-meta { display: flex; width: 100%; align-items: center; gap: 10px; margin-top: 9px; }
 .first-bidder { display: inline-block; margin: 0; padding: 6px 10px; color: var(--green); background: rgba(216,173,92,.22); border-radius: 8px; font-size: 12px; font-weight: 700; }
-.quick-ranking-button { padding: 6px 11px; color: var(--green); background: transparent; border: 1px solid var(--line); border-radius: 8px; font-size: 12px; font-weight: 700; }
-.quick-ranking-button:hover { background: rgba(23,59,51,.07); }
+.quick-ranking-button { margin-left: auto; border: 0; white-space: nowrap; }
+.quick-ranking-button:hover { background: rgba(216,173,92,.35); }
 .round-badge { padding: 10px 15px; color: var(--green); background: rgba(216,173,92,.22); border-radius: 999px; font-weight: 700; }
 .round-card { padding: clamp(22px, 4vw, 38px); }
 .round-instructions { padding-bottom: 20px; border-bottom: 1px solid var(--line); }
@@ -154,6 +154,8 @@ dialog::backdrop { background: rgba(15,27,23,.56); backdrop-filter: blur(3px); }
 .finish-actions .text-button { grid-column: 1 / -1; justify-self: center; color: var(--muted); }
 
 .leaderboard-dialog { width: min(460px, calc(100% - 28px)); max-width: 460px; padding: 0; color: var(--ink); background: transparent; overflow: visible; }
+.leaderboard-dialog[open] { position: fixed; inset: 0; margin: auto; }
+.leaderboard-dialog.dialog-fallback { z-index: 1000; display: block; }
 .quick-ranking-card { padding: 29px; background: var(--paper); border-radius: 23px; }
 .quick-ranking-heading { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
 .quick-ranking-heading h2 { margin: 0; font-size: 32px; }

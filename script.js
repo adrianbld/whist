@@ -446,6 +446,21 @@ function returnToMainScreen() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function openAppDialog(dialog) {
+  if (typeof dialog.showModal === "function") {
+    dialog.showModal();
+    return;
+  }
+  dialog.setAttribute("open", "");
+  dialog.classList.add("dialog-fallback");
+}
+
+function closeAppDialog(dialog) {
+  if (typeof dialog.close === "function") dialog.close();
+  else dialog.removeAttribute("open");
+  dialog.classList.remove("dialog-fallback");
+}
+
 function saveRound(event) {
   event.preventDefault();
   const schedule = buildSchedule(state.players.length);
@@ -594,10 +609,10 @@ elements.finishNewGame.addEventListener("click", () => {
 
 elements.openLeaderboard.addEventListener("click", () => {
   renderLiveLeaderboard();
-  elements.leaderboardDialog.showModal();
+  openAppDialog(elements.leaderboardDialog);
 });
-elements.closeLeaderboard.addEventListener("click", () => elements.leaderboardDialog.close());
-elements.closeLeaderboardButton.addEventListener("click", () => elements.leaderboardDialog.close());
+elements.closeLeaderboard.addEventListener("click", () => closeAppDialog(elements.leaderboardDialog));
+elements.closeLeaderboardButton.addEventListener("click", () => closeAppDialog(elements.leaderboardDialog));
 
 elements.clearHistoryButton.addEventListener("click", () => {
   if (!window.confirm("Ștergi toate statisticile și partidele finalizate de pe acest dispozitiv?")) return;
