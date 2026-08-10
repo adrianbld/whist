@@ -46,7 +46,12 @@ const elements = {
   finalRanking: document.querySelector("#finalRanking"),
   finishNewGame: document.querySelector("#finishNewGame"),
   finishStatistics: document.querySelector("#finishStatistics"),
-  finishClose: document.querySelector("#finishClose")
+  finishClose: document.querySelector("#finishClose"),
+  openLeaderboard: document.querySelector("#openLeaderboard"),
+  leaderboardDialog: document.querySelector("#leaderboardDialog"),
+  closeLeaderboard: document.querySelector("#closeLeaderboard"),
+  closeLeaderboardButton: document.querySelector("#closeLeaderboardButton"),
+  liveLeaderboard: document.querySelector("#liveLeaderboard")
 };
 
 function addPlayerInput(value = "") {
@@ -296,6 +301,7 @@ function renderGame() {
   elements.cardsCount.textContent = cards;
   elements.firstBidder.textContent = isFinished ? "" : `Licitează primul: ${roundPlayers[0].name}`;
   elements.firstBidder.classList.toggle("hidden", isFinished);
+  elements.openLeaderboard.classList.toggle("hidden", isFinished);
   elements.tricksProgress.textContent = `Levate: 0 / ${cards}`;
   elements.roundError.textContent = "";
 
@@ -321,7 +327,7 @@ function renderGame() {
   elements.roundInputs.querySelectorAll(".bid-input").forEach((select) => select.addEventListener("change", updateLastBidOptions));
   updateLastBidOptions();
   updateTrickOptions();
-  elements.roundForm.querySelector(".save-round").disabled = isFinished;
+  elements.roundForm.querySelector(".save-round").disabled = false;
   elements.roundForm.querySelector(".save-round").textContent = isFinished ? "Partidă încheiată" : "Salvează runda";
   elements.roundInputs.classList.toggle("hidden", isFinished);
   elements.roundForm.querySelector(".round-grid-header").classList.toggle("hidden", isFinished);
@@ -417,10 +423,36 @@ function renderScores() {
   elements.undoButton.classList.toggle("hidden", !hasRounds);
 }
 
+function renderLiveLeaderboard() {
+  const ranked = totals().sort((a, b) => b.score - a.score);
+  elements.liveLeaderboard.innerHTML = ranked.map((player, index) => `
+    <div class="live-player">
+      <span class="live-rank">${index + 1}</span>
+      <strong class="live-player-name">${escapeHtml(player.name)}</strong>
+      <span class="live-player-score">${formatScore(player.score)}</span>
+    </div>
+  `).join("");
+}
+
+function returnToMainScreen() {
+  localStorage.removeItem(STORAGE_KEY);
+  state.players = [];
+  state.rounds = [];
+  state.gameId = null;
+  state.startedAt = null;
+  elements.playerInputs.innerHTML = "";
+  ["", "", "", ""].forEach(addPlayerInput);
+  renderGame();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 function saveRound(event) {
   event.preventDefault();
   const schedule = buildSchedule(state.players.length);
-  if (state.rounds.length >= schedule.length) return;
+  if (state.rounds.length >= schedule.length) {
+    returnToMainScreen();
+    return;
+  }
   const cards = schedule[state.rounds.length];
   const playerRows = [...elements.roundInputs.querySelectorAll(".round-player")];
   const bidInputs = playerRows.map((row) => row.querySelector(".bid-input"));
@@ -557,16 +589,15 @@ elements.finishStatistics.addEventListener("click", () => {
 });
 elements.finishNewGame.addEventListener("click", () => {
   elements.finishDialog.close();
-  localStorage.removeItem(STORAGE_KEY);
-  state.players = [];
-  state.rounds = [];
-  state.gameId = null;
-  state.startedAt = null;
-  elements.playerInputs.innerHTML = "";
-  ["", "", "", ""].forEach(addPlayerInput);
-  renderGame();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  returnToMainScreen();
 });
+
+elements.openLeaderboard.addEventListener("click", () => {
+  renderLiveLeaderboard();
+  elements.leaderboardDialog.showModal();
+});
+elements.closeLeaderboard.addEventListener("click", () => elements.leaderboardDialog.close());
+elements.closeLeaderboardButton.addEventListener("click", () => elements.leaderboardDialog.close());
 
 elements.clearHistoryButton.addEventListener("click", () => {
   if (!window.confirm("Ștergi toate statisticile și partidele finalizate de pe acest dispozitiv?")) return;

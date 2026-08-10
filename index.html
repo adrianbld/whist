@@ -43,7 +43,10 @@
           <p class="eyebrow">Partidă în desfășurare</p>
           <h2 id="roundTitle">Runda 1</h2>
           <p id="roundSchedule" class="round-schedule"></p>
-          <p id="firstBidder" class="first-bidder"></p>
+          <div class="round-meta">
+            <p id="firstBidder" class="first-bidder"></p>
+            <button id="openLeaderboard" class="quick-ranking-button" type="button">Clasament</button>
+          </div>
         </div>
         <div class="round-badge"><span id="cardsCount">1</span> cărți</div>
       </div>
@@ -142,6 +145,20 @@
         <button id="finishStatistics" class="button button-secondary" type="button">Vezi statisticile</button>
         <button id="finishClose" class="text-button" type="button">Închide</button>
       </div>
+    </div>
+  </dialog>
+
+  <dialog id="leaderboardDialog" class="leaderboard-dialog">
+    <div class="quick-ranking-card">
+      <div class="quick-ranking-heading">
+        <div>
+          <p class="eyebrow">Scor în timp real</p>
+          <h2>Clasament</h2>
+        </div>
+        <button id="closeLeaderboard" class="dialog-close" type="button" aria-label="Închide clasamentul">×</button>
+      </div>
+      <div id="liveLeaderboard" class="live-leaderboard"></div>
+      <button id="closeLeaderboardButton" class="button button-primary" type="button">Înapoi la joc</button>
     </div>
   </dialog>
 
