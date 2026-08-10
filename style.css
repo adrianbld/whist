@@ -198,10 +198,12 @@ dialog::backdrop { background: rgba(15,27,23,.56); backdrop-filter: blur(3px); }
   .setup-card { padding: 24px 18px; }
   .player-row input { padding: 13px; }
 
-  .game-heading { align-items: flex-start; padding: 0 3px; }
+  .game-heading { position: relative; align-items: flex-start; padding: 0 3px; }
   .game-heading h2 { font-size: 27px; }
   .round-badge { padding: 8px 10px; font-size: 13px; }
-  .round-meta { margin-top: 7px; }
+  .round-meta { min-height: 30px; margin-top: 7px; padding-right: 96px; }
+  .round-meta .first-bidder:not(button) { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .quick-ranking-button { position: absolute; right: 3px; bottom: 0; margin-left: 0; }
   .round-card { padding: 20px 14px; }
   .round-instructions { gap: 10px; padding-bottom: 14px; }
   .round-instructions h3 { font-size: 17px; }
